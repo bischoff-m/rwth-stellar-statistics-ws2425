@@ -75,10 +75,13 @@ with a magnitude less than 8.0 in the field of view of the image. The ADQL query
 obtain this number is given in \autoref{lst:simbad-query}. If two stars are very close
 together, the method might classify them as one object. During visual inspection however,
 I only found two cases of this happening. Stars not being recognized is more commonly due
-to them being too faint to distinguish them from noise. \autoref{fig:removing-stars} shows
-histograms of the calibrated image before and after removing the stars identified by this
-method. In \autoref{fig:after-removing-stars} we can see that almost all pixels identified
-as background have a relative value of at most $20\%$.
+to them being too faint to distinguish them from noise. \autoref{fig:after-removing-stars}
+shows a histogram of the calibrated image after removing the stars identified by this
+method. Comparing this to the histogram of the calibrated image
+(\autoref{fig:pipeline-output}), we can see that almost all pixels identified as
+background have a relative value of at most $20\%$. There is still more noise than in the
+dark field image (see \autoref{fig:black-histogram}), but the method is able to remove
+the majority of the stars.
 
 I also tested other approaches, like template matching. The main problem was to define a
 general template for stars, that would fit different sizes and brightnesses. This drawback
@@ -86,17 +89,10 @@ made template matching much more complex and less reliable than the flood fill m
 
 \begin{figure}[tb]
   \centering
-  % \begin{subfigure}{.33\textwidth}
-  %   \centering
-  %   \includegraphics[width=\linewidth]{histogram_output.png}
-  %   \caption{Calibrated image\\\text{}}
-  %   \label{fig:before-removing-stars}
-  % \end{subfigure}%
-  % \hfill
   \begin{subfigure}{.49\textwidth}
     \centering
     \includegraphics[width=\linewidth]{histogram_black_single.png}
-    \caption{Black image taken with the lens cap on, not normalized.}
+    \caption{Black image taken with the lens cap on, normalized to the same range as the calibrated image.}
     \label{fig:black-histogram}
   \end{subfigure}%
   \hfill
@@ -240,8 +236,9 @@ function is defined as
 where $a$, $b$, $c$ and $d$ are the parameters to be fitted. The factor $30$ is used to
 ensure convergence of the optimization algorithm. The parameters are fitted using the
 \texttt{curve\_fit} method from the \texttt{scipy} library \cite{scipy2020}. The optimal
-values of the parameters are $a = 0.47$, $b = 3.28$, $c = 0.63$ and $d = 4.03$ and the
-resulting function is shown in \autoref{fig:fitted-exponential}.
+values of the parameters are $a = 0.47 \pm 0.29$, $b = 3.2 \pm 0.024$, $c = 0.63 \pm 0.19$
+and $d = 4.03 \pm 0.011$ and the resulting function is shown in
+\autoref{fig:fitted-exponential}.
 
 I tested other functions, like a polynomial, hyperbolic, logarithmic and variations of
 trigonometric functions. The function $g(x) = a \cdot \log(1 / x + b)$ would be the most
@@ -253,9 +250,12 @@ magnitudes is shown in \autoref{fig:prediction-logarithmic}. I settled on the ex
 function (\autoref{fig:fitted-exponential}) mentioned above, because it produced the
 lowest mean squared error. For a pixel sum of 0, the function returns a magnitude of
 $7.5$, which is the maximum magnitude of the stars in the image. Any star with a higher
-magnitude is not distinguishable from noise. The function stagnates towards a magnitude of
-$4$ from a pixel sum of $50$ onwards. This is likely due to a lack of training data and
-saturation of the sensor for a majority of the pixels.
+magnitude is not distinguishable from noise. Considering that stars up to a magnitude of
+6-7 are visible to the naked eye under good conditions, this is a reasonable result.
+However, the brightest star in the image is Deneb ($\alpha$ Cygni) with a magnitude of
+$1.25$. The function is not able to predict this correctly, as it stagnates towards a
+magnitude of $4$ from a pixel sum of $50$ onwards. This is likely due to a lack of
+training data and saturation of the sensor for a majority of the pixels.
 
 The mean squared error of the fit without the clustering step was $0.366$. With the
 clustering, but without the scaling by $s(x)$, the error was $0.349$. The final error
@@ -295,8 +295,8 @@ approach in \autoref{sec:magnitude-estimation}, is shown in
 \autoref{fig:distribution-predicted}. For comparison, the same plot is shown for the stars
 obtained from the SIMBAD database using the query in \autoref{lst:simbad-query} in
 \autoref{fig:distribution-true}. I fitted the function in \autoref{eq:source-count} to the
-cumulative distribution, with the slope, $N_0$ and $m_0$ as free parameters. From the fit,
-I obtained a slope of $0.41$ for the predicted magnitudes and $0.51$ for the true
+cumulative distribution, with the slope $a$, $N_0$ and $m_0$ as free parameters. From the
+fit, I obtained a slope of $0.41$ for the predicted magnitudes and $0.51$ for the true
 magnitudes, which is close to the expected value of $0.6$. One of the main reasons for the
 deviation is likely the low accuracy of the predictor for bright stars. As no star
 receives a magnitude of less than $4$, the distribution is inflated at the bright end,
@@ -309,14 +309,27 @@ than 8.0. I suspect this is the reason for the lower slope of the true magnitude
   \begin{subfigure}{.49\textwidth}
     \centering
     \includegraphics[width=\linewidth]{source_count_predicted.png}
-    \caption{Prediction with the exponential function $f(x)$}
+    \caption{Prediction with the exponential function $f(x)$;
+      \begin{tabular}{lll}
+        \text{ } & $N_0$ & $= 1.83 \pm 0.414$              \\
+        \text{ } & $a$   & $= 0.41 \pm 9.48 \cdot 10^{-3}$ \\
+        \text{ } & $m_0$ & $= 4.45 \pm 0.102$
+      \end{tabular}
+    }
     \label{fig:distribution-predicted}
   \end{subfigure}%
   \hfill
   \begin{subfigure}{.49\textwidth}
     \centering
     \includegraphics[width=\linewidth]{source_count_true.png}
-    \caption{Prediction with the logarithmic function $g(x)$}
+    \caption{
+      Prediction with the logarithmic function $g(x)$;
+      \begin{tabular}{lll}
+        \text{ } & $N_0$ & $= 0.95 \pm 0.78$              \\
+        \text{ } & $a$   & $= 0.51 \pm 8.2 \cdot 10^{-4}$ \\
+        \text{ } & $m_0$ & $= 2.23 \pm 0.154$
+      \end{tabular}
+    }
     \label{fig:distribution-true}
   \end{subfigure}
   \caption{}

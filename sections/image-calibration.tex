@@ -30,7 +30,7 @@ brightness and noise. All images were taken with an aperture of f/3.5 and a foca
 of 18 mm and were saved in the Canon CR2 raw image format. An example image is shown in
 \autoref{fig:sky-input}.
 
-\begin{table}[tb]
+\begin{table}[b]
   \centering
   \begin{tabular}{ll}
     \toprule
@@ -142,6 +142,24 @@ incorrect sensitivity to light. Second, a pixel can be faulty due to cosmic rays
 sources of radiation, which can cause it to receive more light than expected. Both types
 result in a pixel that has a higher or lower intensity than its neighbors.
 
+\begin{figure}[tbp]
+  \centering
+  \begin{subfigure}{.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{vignette-photo.png}
+    \caption{The white field image with reduced brightness and increased contrast for better visualization.}
+    \label{fig:vignette-photo}
+  \end{subfigure}%
+  \hfill
+  \begin{subfigure}{.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{vignette-histogram.png}
+    \caption{Histogram of the green channel of the white field image with relative pixel values.}
+    \label{fig:vignette-histogram}
+  \end{subfigure}
+  \caption{}
+\end{figure}
+
 To identify faulty pixels, I compared each pixel to its neighbors in the night sky input
 image. Let $I \in \mathbb{R}^{m \times n}$ be the input image and $I_{ij}$ be the
 intensity of pixel $(i,j)$. I define the convolution kernel $K \in \mathbb{R}^{3 \times
@@ -182,52 +200,7 @@ pixels, so I could not test this method. Also, the method described above should
 to identify both types of faulty pixels. Therefore, I did not implement this alternative
 approach.
 
-
-\subsection{Vignetting Correction}
-\label{sec:vignetting-correction}
-
-As light rays from the edges of the lens have to travel a longer distance to reach the
-sensor, the intensity of light is lower at the edges of the image. This effect is called
-vignetting and can be corrected by dividing the input image by the white field image.
-Because the white field image is homogeneously illuminated, the vignetting effect is the
-main feature of the image. The white field image is shown in \autoref{fig:vignette-photo},
-and its green channel histogram is shown in \autoref{fig:vignette-histogram}. It is
-important that the brightest pixels are not saturated to cover the full range of
-intensities. We need to normalize the white field image, as the center of the vignette
-should correspond to a correction factor of 1 and the mean and standard deviation of the
-distribution depend on camera settings, like the exposure time. Therefore, we divide the
-white image by its 99.999th percentile, which, in this case, corresponds to the 18025th
-brightest pixel. This is similar to the maximum, but more robust to outliers.
-
-\begin{figure}[htbp]
-  \centering
-  \begin{subfigure}{.49\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{vignette-photo.png}
-    \caption{The white field image with reduced brightness and increased contrast for better visualization.}
-    \label{fig:vignette-photo}
-  \end{subfigure}%
-  \hfill
-  \begin{subfigure}{.49\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{vignette-histogram.png}
-    \caption{Histogram of the green channel of the white field image with relative pixel values.}
-    \label{fig:vignette-histogram}
-  \end{subfigure}
-  \caption{}
-\end{figure}
-
-Finally, we divide the input image by the normalized white field image. The result is
-shown in \autoref{fig:vignette-correction}. The vignetting effect is subtle, but visible.
-In particular, the light pollution is now more pronounced in the bottom right corner,
-because it was previously masked by the vignetting. I noticed that the white field image
-has multiple dark spots, which are also visible in the input image, if the contrast is
-increased. I cleaned the lens on the inside and outside and the mirror of the camera, but
-the spots remained. I suspect that they are caused by dust on a lens element inside the
-camera, which is difficult to clean without professional equipment. However, dividing by
-the white field image also corrects for these spots.
-
-\begin{figure}[htbp]
+\begin{figure}[tbp]
   \centering
   \begin{subfigure}{.49\textwidth}
     \centering
@@ -245,6 +218,39 @@ the white field image also corrects for these spots.
     described in \autoref{sec:interpolation}.}
   \label{fig:vignette-correction}
 \end{figure}
+
+\subsection{Vignetting Correction}
+\label{sec:vignetting-correction}
+
+As light rays from the edges of the lens have to travel a longer distance to reach the
+sensor, the intensity of light is lower at the edges of the image. This effect is called
+vignetting and can be described by the cosine-fourth-power law. It states that the
+intensity of light $B$ at an angle $\alpha$ from the center of the image is given by
+\begin{align*}
+  B(\alpha) = B_{0} \cdot \cos^{4}(\alpha),
+\end{align*}
+where $B_{0}$ is the intensity at the center of the image, assuming that the image is
+distortion-free and the lens does not vignette or exhibit pupil aberrations. I correct for
+this effect by dividing the input image by the white field image. Because the white field
+image is homogeneously illuminated, the vignetting effect is the main feature of the
+image. The white field image is shown in \autoref{fig:vignette-photo}, and its green
+channel histogram is shown in \autoref{fig:vignette-histogram}. It is important that the
+brightest pixels are not saturated to cover the full range of intensities. We need to
+normalize the white field image, as the center of the vignette should correspond to a
+correction factor of 1 and the mean and standard deviation of the distribution depend on
+camera settings, like the exposure time. Therefore, we divide the white image by its
+99.999th percentile, which, in this case, corresponds to the 18025th brightest pixel. This
+is similar to the maximum, but more robust to outliers.
+
+Finally, we divide the input image by the normalized white field image. The result is
+shown in \autoref{fig:vignette-correction}. The vignetting effect is subtle, but visible.
+In particular, the light pollution is now more pronounced in the bottom right corner,
+because it was previously masked by the vignetting. I noticed that the white field image
+has multiple dark spots, which are also visible in the input image, if the contrast is
+increased. I cleaned the lens on the inside and outside and the mirror of the camera, but
+the spots remained. I suspect that they are caused by dust on a lens element inside the
+camera, which is difficult to clean without professional equipment. However, dividing by
+the white field image also corrects for these spots.
 
 \subsection{Interpolation}
 \label{sec:interpolation}
