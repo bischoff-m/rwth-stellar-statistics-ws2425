@@ -1,0 +1,51 @@
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsxtra}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{cite}
+\usepackage[hidelinks]{hyperref}
+\usepackage{todonotes}
+\usepackage{booktabs}
+\usepackage{nicematrix}
+
+\graphicspath{{../figures/}}
+
+\newcommand{\titleVariableHead}{}
+\newcommand{\titleVariableMain}{}
+\newcommand{\titleVariableSub}{}
+
+\newcommand{\titlehead}[1]{\renewcommand{\titleVariableHead}{#1}}
+\newcommand{\titlemain}[1]{\renewcommand{\titleVariableMain}{#1}}
+\newcommand{\titlesub}[1]{\renewcommand{\titleVariableSub}{#1}}
+
+\newcommand{\maketitleandtoc}{
+  \maketitle
+  \thispagestyle{empty}
+  \newpage
+
+  \tableofcontents
+  \thispagestyle{empty}
+  \newpage
+
+  \pagestyle{headings}
+  \setcounter{page}{1}
+}
+
+\newcommand{\makebibliography}{
+  \newpage
+  \nocite{}
+  \bibliographystyle{plain}
+  \bibliography{references}
+}
+
+\title{
+{\bf \scriptsize \titleVariableHead} \\[3cm]
+{\Huge \titleVariableMain} \\
+{\large \titleVariableSub} \\[2cm]
+}
+

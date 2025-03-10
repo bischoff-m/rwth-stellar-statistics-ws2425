@@ -1,0 +1,41 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Identifying stars in astronomical images and estimating their brightness are fundamental
+tasks in astronomy and commonly the first steps in many astronomical analyses. Night sky
+images are often contaminated by other sources of light and contain biases that must be
+corrected before the images can be analyzed. In this paper, I present approaches to
+correct for various sources of bias in astronomical images, identify stars in the images,
+estimate their magnitudes and use these magnitudes to do further analysis. The final goal
+is to estimate the source-count distribution of stars in the images and compare it to the
+literature.
+
+\subsection{Software Library}
+\label{sec:software-library}
+
+The methods presented in this paper are implemented in a software library called
+\texttt{brightest}. It is designed with a focus on reusability and extensibility, such
+that the methods are not optimized for the specific images used in this paper, but can be
+applied to any set of astronomical images. The code is written in Python 3.12 and is
+available \href{https://github.com/bischoff-m/brightest}{on GitHub} \cite{Bischoff2025}.
+The most important libraries used, their versions and their purpose are listed in
+\autoref{tab:libraries}. This list represents the current state and may change in the
+future.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    Library                                   & Version   & Purpose                                 \\
+    \midrule
+    \texttt{astrometry} \cite{astrometry2010} & 4.1.2     & Solving for position                    \\
+    \texttt{astropy} \cite{astropy2022}       & 7.0.1     & Pixel-to-sky mapping                    \\
+    \texttt{astroquery} \cite{astroquery2019} & 0.4.9     & Querying the SIMBAD database            \\
+    \texttt{opencv-python} \cite{opencv2000}  & 4.11.0.86 & Image processing                        \\
+    \texttt{rawkit} \cite{rawkit2025}         & 0.6.0     & Reading raw images (wrapper for LibRaw) \\
+    \texttt{scikit-learn} \cite{scikit-learn} & 1.6.1     & K-means clustering                      \\
+    \bottomrule
+  \end{tabular}
+  \caption{Most notable dependencies of the \texttt{brightest} library.}
+  \label{tab:libraries}
+\end{table}

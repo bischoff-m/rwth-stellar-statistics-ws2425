@@ -1,0 +1,42 @@
+
+\section{Discussion}
+\label{sec:discussion}
+
+The goal of this project was to develop a program for the analysis of night sky images
+and use it to estimate the source-count distribution of stars. The program consists of
+the calibration of the input image, the identification of stars, matching them to a
+catalog and estimating their magnitudes.
+
+Judging by the results, the calibration of the image was successful. The faulty pixels
+were corrected, the vignetting effect was removed, and the skyglow was reduced. I think
+the biggest improvement would be to verify that the calibration works reliably under
+different conditions. How accurate is the method for different cameras, lenses, ISO
+settings and exposure times? How well does the method handle diffraction spike patterns?
+What if objects obstruct the view or the image is taken in the presence of the moon? I was
+not able to test these questions, but I am confident that my approach performs well for
+wide-field images with no obstructing objects.
+
+The identification of stars was also successful. The method was able to find the majority
+of the stars that are visible in the image. The main problem was the distinction between
+stars and noise. I manually found stars that were not recognized, but they were faint and
+hard to distinguish from the background. Also, if the image is very blurry or out of
+focus, the algorithm might not work well. It would be interesting to combine the flood
+fill method with the template matching approach for small objects. This could help to
+identify stars that are too faint for the current method. The subsequent steps were very
+reliant on the accuracy of solving for the camera orientation. It would be possible to
+improve the robustness of the solver by taking the brightness of the stars into account.
+Also, the solver could be combined with the catalog matching step to make the intermediate
+step unnecessary. When estimating the brightness using the pixel sum, a big reason for
+inaccuracy was that the sensor was saturated for many of the bright stars. This introduced
+a different slope in the data, which the exponential function could not capture. It could
+be modeled by a more complex function, but it would need to avoid overfitting the dimmer
+stars. The magnitude estimation does not work for stars with a magnitude lower than 4.0 or
+higher than 8.0, due to the lack of training data. The source-count distribution was
+estimated by fitting a power-law to the cumulative distribution of the magnitudes. The
+slope of the distribution was close to the expected value of $0.6$, but the distribution
+was inflated at the bright end. I suspect this was due to the low accuracy of the
+predictor. However, the shape of the distribution does fit the expected form.
+
+In conclusion, the program is a good starting point for the analysis of night sky images.
+It is able to calibrate images and give a solid estimate of how bright the stars are. The
+code is modular and can be used as a library or as a basis for further development.
